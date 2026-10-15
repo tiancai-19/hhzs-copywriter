@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>辉煌装饰 · 文案助手</title>
+<style>
+  :root {
+    --primary: #8a5a3b;
+    --primary-dark: #6f462e;
+    --bg: #faf7f2;
+    --card: #ffffff;
+    --text: #2b2622;
+    --muted: #8a8178;
+    --line: #e8e0d6;
+    --soft: #f4ede4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+
+  header {
+    background: linear-gradient(135deg, #8a5a3b, #6f462e);
+    color: #fff;
+    padding: 28px 16px 24px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.4rem; letter-spacing: 1px; }
+  header p { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
+
+  .tabs {
+    display: flex;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .tabs button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 15px 0;
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+  }
+  .tabs button.active { color: var(--primary); font-weight: 700; }
+  .tabs button.active::after {
+    content: "";
+    position: absolute;
+    left: 25%; right: 25%; bottom: 0;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--primary);
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    box-shadow: 0 2px 10px rgba(90, 70, 50, 0.06);
+  }
+  .label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-height: 40px;
+  }
+  .chip.on {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .seg {
+    display: flex;
+    background: var(--soft);
+    border-radius: 10px;
+    padding: 4px;
+    margin-top: 14px;
+  }
+  .seg button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 9px 0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button.on { background: #fff; color: var(--primary); font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  .field { margin-top: 14px; }
+  .field input {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    background: #fff;
+    color: var(--text);
+    min-height: 48px;
+  }
+  .field input:focus { outline: none; border-color: var(--primary); }
+  .field .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .field { flex: 1; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 15px 0;
+    margin-top: 18px;
+    cursor: pointer;
+    min-height: 52px;
+  }
+  .btn:active { background: var(--primary-dark); }
+  .btn.ghost {
+    background: #fff;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+  }
+
+  .btnrow { display: flex; gap: 10px; margin-top: 14px; }
+  .btnrow .btn { margin-top: 0; }
+
+  .title-pick { display: flex; flex-direction: column; gap: 8px; }
+  .tpick {
+    border: 1.5px solid var(--line);
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    line-height: 1.5;
+  }
+  .tpick.on { border-color: var(--primary); background: #faf3ec; font-weight: 600; }
+  .tpick.on::after {
+    content: "✓ 选用";
+    position: absolute;
+    right: 10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .tpick.on { padding-right: 64px; }
+
+  textarea.final {
+    width: 100%;
+    border: 1.5px dashed var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 1rem;
+    line-height: 1.7;
+    min-height: 200px;
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea.final:focus { outline: none; border-color: var(--primary); border-style: solid; }
+
+  .script-card {
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    cursor: pointer;
+    background: #fff;
+  }
+  .script-card.on { border-color: var(--primary); background: #faf3ec; }
+  .script-card .tagline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .script-card .vname { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+  .script-card .vsec { font-size: 0.78rem; color: var(--muted); }
+  .script-card .vtext { font-size: 0.92rem; color: var(--text); white-space: pre-wrap; }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 80px;
+    transform: translateX(-50%);
+    background: rgba(43, 38, 34, 0.92);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 999;
+    max-width: 80%;
+    text-align: center;
+  }
+  #toast.show { opacity: 1; }
+
+  /* 提词模式 */
+  #teleprompter {
+    position: fixed;
+    inset: 0;
+    background: #14100d;
+    color: #fff;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+  }
+  #teleprompter.show { display: flex; }
+  #tp-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #2e2620;
+    flex-wrap: wrap;
+  }
+  #tp-bar button {
+    border: 1px solid #4a3f36;
+    background: #221b16;
+    color: #e8dfd5;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  #tp-bar button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  #tp-exit { margin-left: auto; }
+  #tp-text {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    padding: 24px;
+  }
+  #tp-inner {
+    font-size: 30px;
+    line-height: 1.9;
+    font-weight: 600;
+    white-space: pre-wrap;
+    will-change: transform;
+  }
+  #tp-tip {
+    text-align: center;
+    color: #6e6259;
+    font-size: 0.78rem;
+    padding: 8px 0 14px;
+  }
+
+  .tips { font-size: 0.8rem; color: var(--muted); margin-top: 10px; line-height: 1.7; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>辉煌装饰 · 文案助手</h1>
+  <p>完工文案 · 开工口播 · 一键出稿</p>
+</header>
+
+<div class="tabs">
+  <button id="tab-done" class="active" onclick="switchTab('done')">完工视频文案</button>
+  <button id="tab-start" onclick="switchTab('start')">开工口播稿</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ 模块一：完工视频文案 ============ -->
+  <section id="panel-done">
+    <div class="card">
+      <div class="label">装修风格</div>
+      <div class="chips" id="style-chips"></div>
+
+      <div class="label" style="margin-top:16px">文案调性</div>
+      <div class="seg" id="tone-seg">
+        <button data-tone="quality" class="on" onclick="setTone('quality')">质感版</button>
+        <button data-tone="casual" onclick="setTone('casual')">口语版</button>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <div class="label">小区名</div>
+          <input id="in-village" type="text" placeholder="如:世纪华阳">
+        </div>
+        <div class="field">
+          <div class="label">楼栋（选填）</div>
+          <input id="in-unit" type="text" placeholder="如:3栋2单元">
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">面积（选填）</div>
+        <input id="in-area" type="text" placeholder="如:120㎡，填了标题更真实">
+      </div>
+
+      <button class="btn" onclick="generateDone()">生成文案</button>
+      <div class="tips">小区名填一次自动记住；不填面积则跳过带面积的标题。</div>
+    </div>
+
+    <div id="done-result" class="hidden">
+      <div class="card">
+        <div class="label">标题（点一条选用）</div>
+        <div class="title-pick" id="title-picks"></div>
+      </div>
+
+      <div class="card">
+        <div class="label">完整文案（每个字都能改，改完再复制）</div>
+        <textarea class="final" id="final-text"></textarea>
+        <div class="btnrow">
+          <button class="btn" onclick="copyText('final-text')">复制全文</button>
+          <button class="btn ghost" onclick="generateDone(true)">换一批</button>
+        </div>
+        <div class="tips">复制后粘到抖音发布页即可；想改哪个字，直接在框里改。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 模块二：开工口播稿 ============ -->
+  <section id="panel-start" class="hidden">
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <div class="label">小区名</div>
+          <input id="in-svillage" type="text" placeholder="如:世纪华阳">
+        </div>
+        <div class="field">
+          <div class="label">楼栋（选填）</div>
+          <input id="in-sunit" type="text" placeholder="如:3栋2单元">
+        </div>
+      </div>
+      <button class="btn" onclick="generateScript()">生成口播稿</button>
+      <div class="tips">一次出三条（老表味儿/简洁喜庆/热闹型），点哪条用哪条；结尾口号嫌长，生成后自己删。</div>
+    </div>
+
+    <div id="script-result" class="hidden">
+      <div class="card">
+        <div class="label">三条稿子（点一条选用）</div>
+        <div id="script-list"></div>
+      </div>
+
+      <div id="script-edit-card" class="card hidden">
+        <div class="label">口播稿（可直接改字）</div>
+        <textarea class="final" id="script-text" style="min-height:150px;font-size:1.05rem"></textarea>
+        <div class="btnrow">
+          <button class="btn" onclick="copyText('script-text')">复制</button>
+          <button class="btn ghost" onclick="openTeleprompter()">提词模式</button>
+        </div>
+        <div class="tips">提词模式：全屏大字自动滚动，对着念就行，可暂停、调速度、调字号。</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast"></div>
+
+<!-- 提词模式 -->
+<div id="teleprompter">
+  <div id="tp-bar">
+    <button id="tp-play" onclick="tpTogglePlay()">⏸ 暂停</button>
+    <button onclick="tpSetSpeed(1)">慢</button>
+    <button id="tp-speed-2" class="on" onclick="tpSetSpeed(2)">中</button>
+    <button onclick="tpSetSpeed(3)">快</button>
+    <button onclick="tpCycleFont()">字号</button>
+    <button id="tp-exit" onclick="closeTeleprompter()">✕ 退出</button>
+  </div>
+  <div id="tp-text"><div id="tp-inner"></div></div>
+  <div id="tp-tip">轻点屏幕可暂停 / 继续</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  var D = window.HZ_DATA;
+  var state = {
+    styleId: D.styles[0].id,
+    tone: "quality",
+    pickedTitle: "",
+    body: "",
+    tags: "",
+    scriptPick: -1
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------- 工具 ----------
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // 轮转队列：句子洗牌后一个一个出，出完重洗——连刷不撞车
+  function Queue(arr) {
+    this.items = null;
+    this.i = 0;
+    this.reset(arr);
+  }
+  Queue.prototype.reset = function (arr) {
+    this.items = shuffle(arr.slice());
+    this.i = 0;
+  };
+  Queue.prototype.take = function (n) {
+    var out = [];
+    for (var k = 0; k < n; k++) {
+      if (this.i >= this.items.length) this.reset(this.items);
+      out.push(this.items[this.i++]);
+    }
+    return out;
+  };
+  Queue.prototype.next = function () { return this.take(1)[0]; };
+  var queues = {};
+  function getQueue(key, arr) {
+    if (!queues[key]) queues[key] = new Queue(arr);
+    return queues[key];
+  }
+  function fill(tpl, map) {
+    return tpl.replace(/\{(\u9762\u79ef|\u5c0f\u533a|\u5730\u70b9)\}/g, function (m, k) {
+      return map[k] !== undefined ? map[k] : m;
+    });
+  }
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+
+  // ---------- Tab 切换 ----------
+  window.switchTab = function (name) {
+    $("tab-done").classList.toggle("active", name === "done");
+    $("tab-start").classList.toggle("active", name === "start");
+    $("panel-done").classList.toggle("hidden", name !== "done");
+    $("panel-start").classList.toggle("hidden", name !== "start");
+  };
+
+  // ---------- 风格 chips ----------
+  function renderStyles() {
+    var box = $("style-chips");
+    box.innerHTML = "";
+    D.styles.forEach(function (s) {
+      var b = document.createElement("button");
+      b.className = "chip" + (s.id === state.styleId ? " on" : "");
+      b.textContent = s.name;
+      b.onclick = function () {
+        state.styleId = s.id;
+        renderStyles();
+      };
+      box.appendChild(b);
+    });
+  }
+  window.setTone = function (tone) {
+    state.tone = tone;
+    var btns = $("tone-seg").querySelectorAll("button");
+    btns.forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-tone") === tone);
+    });
+  };
+
+  // ---------- 输入记忆 ----------
+  function saveInputs() {
+    try {
+      localStorage.setItem("hz_village", $("in-village").value.trim());
+      localStorage.setItem("hz_unit", $("in-unit").value.trim());
+      localStorage.setItem("hz_area", $("in-area").value.trim());
+      localStorage.setItem("hz_svillage", $("in-svillage").value.trim());
+      localStorage.setItem("hz_sunit", $("in-sunit").value.trim());
+    } catch (e) {}
+  }
+  function loadInputs() {
+    try {
+      $("in-village").value = localStorage.getItem("hz_village") || "";
+      $("in-unit").value = localStorage.getItem("hz_unit") || "";
+      $("in-area").value = localStorage.getItem("hz_area") || "";
+      $("in-svillage").value = localStorage.getItem("hz_svillage") || "";
+      $("in-sunit").value = localStorage.getItem("hz_sunit") || "";
+    } catch (e) {}
+  }
+  ["in-village", "in-unit", "in-area", "in-svillage", "in-sunit"].forEach(function (id) {
+    $(id).addEventListener("change", saveInputs);
+  });
+
+  // ---------- 模块一：完工文案 ----------
+  window.generateDone = function (isRegen) {
+    saveInputs();
+    var style = D.styles.find(function (s) { return s.id === state.styleId; });
+    var village = $("in-village").value.trim();
+    var area = $("in-area").value.trim();
+    var map = { 小区: village || "本案", 面积: area };
+
+    // 标题：面积为空则跳过带{面积的}的标题，从队列取 3 条（连刷不重样）
+    var pool = style[state.tone].titles.filter(function (t) {
+      return area ? true : t.indexOf("{面积}") === -1;
+    });
+    var titles = getQueue("t:" + state.styleId + ":" + state.tone + ":" + pool.length, pool).take(3);
+
+    // 正文：意象+材质+金句+承诺+落款，五段各从队列取一句
+    var t = style[state.tone];
+    var qk = state.styleId + ":" + state.tone;
+    var body =
+      fill(getQueue("lead:" + qk, t.lead).next(), map) + "\n" +
+      fill(getQueue("detail:" + qk, t.detail).next(), map) + "\n" +
+      fill(getQueue("att:" + qk, t.attitude).next(), map) + "\n" +
+      getQueue("svc", D.common.service).next() + "\n" +
+      fill(getQueue("sign", D.common.sign).next(), map);
+
+    state.body = body;
+    state.tags = style.tags;
+    state.pickedTitle = titles[0];
+
+    var box = $("title-picks");
+    box.innerHTML = "";
+    titles.forEach(function (t, i) {
+      var b = document.createElement("button");
+      b.className = "tpick" + (i === 0 ? " on" : "");
+      b.innerHTML = esc(fill(t, map));
+      b.onclick = function () {
+        state.pickedTitle = fill(t, map);
+        var all = box.querySelectorAll(".tpick");
+        all.forEach(function (x) { x.classList.remove("on"); });
+        b.classList.add("on");
+        refreshFinal();
+      };
+      box.appendChild(b);
+    });
+
+    refreshFinal();
+    $("done-result").classList.remove("hidden");
+    if (isRegen) toast("换了一批，标题可重新点选");
+  };
+
+  function refreshFinal() {
+    $("final-text").value =
+      state.pickedTitle + "\n\n" + state.body + "\n\n" + state.tags;
+  }
+
+  // ---------- 模块二：口播稿 ----------
+  window.generateScript = function () {
+    saveInputs();
+    var village = $("in-svillage").value.trim();
+    var unit = $("in-sunit").value.trim();
+    if (!village) {
+      toast("先填小区名，口播要报地点");
+      $("in-svillage").focus();
+      return;
+    }
+    var place = village + (unit ? unit : "");
+    var map = { 地点: place };
+
+    // 组装口播稿：5 模块从队列轮转取句，"开工/吉时"最多出现 2 次，防啰嗦
+    function compose(v, kp, map) {
+      var o = getQueue(kp + ":open", v.opening).next();
+      var p = getQueue("scr:place", D.scripts.places).next();
+      var f = getQueue(kp + ":fest", v.festive).next();
+      var pr = getQueue(kp + ":prom", v.promise).next();
+      var s = getQueue("scr:slogan", D.scripts.slogans).next();
+      for (var i = 0; i < 6; i++) {
+        var all = o + p + f + pr + s;
+        var cnt = function (w) { return all.split(w).length - 1; };
+        if (cnt("开工") <= 2 && cnt("吉时") <= 2) break;
+        if (cnt("开工") > 2) f = getQueue(kp + ":fest", v.festive).next();
+        else p = getQueue("scr:place", D.scripts.places).next();
+      }
+      return fill(o + p + f + pr + s, map);
+    }
+
+    var list = $("script-list");
+    list.innerHTML = "";
+    var keys = ["A", "B", "C"];
+    state.scriptPick = -1;
+
+    keys.forEach(function (k) {
+      var sc = D.scripts[k];
+      var text = compose(sc, "scr:" + k, map);
+      var card = document.createElement("div");
+      card.className = "script-card";
+      card.innerHTML =
+        '<div class="tagline"><span class="vname">' + k + " · " + esc(sc.name) +
+        '</span><span class="vsec">约 ' + estSeconds(text) + ' 秒</span></div>' +
+        '<div class="vtext">' + esc(text) + "</div>";
+      card.onclick = function () {
+        state.scriptPick = k;
+        var all = list.querySelectorAll(".script-card");
+        all.forEach(function (x) { x.classList.remove("on"); });
+        card.classList.add("on");
+        $("script-text").value = text;
+        $("script-edit-card").classList.remove("hidden");
+        $("script-edit-card").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      };
+      list.appendChild(card);
+    });
+
+    $("script-result").classList.remove("hidden");
+    $("script-edit-card").classList.add("hidden");
+    toast("三条稿子出来了，点一条选用");
+  };
+
+  function estSeconds(text) {
+    var n = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").length;
+    return Math.max(1, Math.round(n / 4.5));
+  }
+
+  // ---------- 复制（带降级） ----------
+  window.copyText = function (textareaId) {
+    var el = $(textareaId);
+    var text = el.value;
+    if (!text.trim()) { toast("没有内容可复制"); return; }
+    function fallback() {
+      try {
+        el.focus();
+        el.select();
+        var ok = document.execCommand("copy");
+        el.setSelectionRange(el.value.length, el.value.length);
+        if (ok) { toast("已复制"); return; }
+        throw new Error("fail");
+      } catch (e) {
+        toast("复制失败，请长按文字手动复制");
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast("已复制");
+      }, fallback);
+    } else {
+      fallback();
+    }
+  };
+
+  // ---------- 提词模式 ----------
+  var tp = { playing: false, speed: 2, offset: 0, fontIdx: 1, raf: null, last: 0 };
+  var FONTS = [22, 30, 38];
+  var SPEEDS = { 1: 0.9, 2: 1.8, 3: 3.2 }; // px / frame
+
+  window.openTeleprompter = function () {
+    var text = $("script-text").value;
+    if (!text.trim()) { toast("先生成或选用一条口播稿"); return; }
+    $("tp-inner").textContent = text;
+    $("tp-inner").style.fontSize = FONTS[tp.fontIdx] + "px";
+    tp.offset = 0;
+    $("tp-inner").style.transform = "translateY(0)";
+    $("teleprompter").classList.add("show");
+    document.body.style.overflow = "hidden";
+    tpStart();
+  };
+  window.closeTeleprompter = function () {
+    $("teleprompter").classList.remove("show");
+    document.body.style.overflow = "";
+    tpStop();
+  };
+  function tpStart() {
+    tp.playing = true;
+    $("tp-play").textContent = "⏸ 暂停";
+    tp.last = performance.now();
+    cancelAnimationFrame(tp.raf);
+    function loop(now) {
+      if (!tp.playing) return;
+      var dt = (now - tp.last) / 16.7;
+      tp.last = now;
+      var max = $("tp-inner").offsetHeight - $("tp-text").clientHeight + 80;
+      if (tp.offset < max) {
+        tp.offset += SPEEDS[tp.speed] * dt;
+        $("tp-inner").style.transform = "translateY(" + (-tp.offset) + "px)";
+      }
+      tp.raf = requestAnimationFrame(loop);
+    }
+    tp.raf = requestAnimationFrame(loop);
+  }
+  function tpStop() {
+    tp.playing = false;
+    cancelAnimationFrame(tp.raf);
+  }
+  window.tpTogglePlay = function () {
+    if (tp.playing) {
+      tpStop();
+      $("tp-play").textContent = "▶ 继续";
+    } else {
+      tpStart();
+    }
+  };
+  window.tpSetSpeed = function (n) {
+    tp.speed = n;
+    [1, 2, 3].forEach(function (i) {
+      $("tp-speed-" + i).classList.toggle("on", i === n);
+    });
+  };
+  window.tpCycleFont = function () {
+    tp.fontIdx = (tp.fontIdx + 1) % FONTS.length;
+    $("tp-inner").style.fontSize = FONTS[tp.fontIdx] + "px";
+    toast("字号：" + FONTS[tp.fontIdx] + "px");
+  };
+  $("tp-text").addEventListener("click", function () { tpTogglePlay(); });
+
+  // ---------- 初始化 ----------
+  renderStyles();
+  loadInputs();
+})();
+</script>
+</body>
+</html>
