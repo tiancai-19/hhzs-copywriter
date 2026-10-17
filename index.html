@@ -452,6 +452,21 @@
     if (!queues[key]) queues[key] = new Queue(arr);
     return queues[key];
   }
+  // ---------- 使用计数静默上报（Cloudflare KV，失败绝不打扰主流程） ----------
+  var TRACK_URL = "https://hhzs-copywriter.pages.dev/api/track";
+  var TRACK_KEY = "hzs_7f3ka9m2xq8w";
+  function trackEvent(event) {
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+    try {
+      void fetch(TRACK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: TRACK_KEY, event: event }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   function fill(tpl, map) {
     return tpl.replace(/\{(\u9762\u79ef|\u5c0f\u533a|\u5730\u70b9)\}/g, function (m, k) {
       return map[k] !== undefined ? map[k] : m;
@@ -526,6 +541,7 @@
   // ---------- 模块一：完工文案 ----------
   window.generateDone = function (isRegen) {
     saveInputs();
+    trackEvent("done");
     var style = D.styles.find(function (s) { return s.id === state.styleId; });
     var village = $("in-village").value.trim();
     var area = $("in-area").value.trim();
@@ -589,6 +605,7 @@
     }
     var place = village + (unit ? unit : "");
     var map = { 地点: place };
+    trackEvent("script");
 
     // 组装口播稿：5 模块从队列轮转取句，"开工/吉时"最多出现 2 次，防啰嗦
     function compose(v, kp, map) {
@@ -736,6 +753,7 @@
   // ---------- 初始化 ----------
   renderStyles();
   loadInputs();
+  trackEvent("launch");
 })();
 </script>
 </body>
